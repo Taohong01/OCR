@@ -2,16 +2,23 @@ import cv2
 import numpy as np
 from sklearn import svm as sksvm 
 
-
+# each digit image size specification (based on the specific image we got):
 SZ=20
+
+# descrete number of the edge orientation angle
 bin_n = 16 # Number of bins
 
+
+# Support Vector Machine parameter specification:
 svm_params = dict( kernel_type = cv2.SVM_LINEAR,
                     svm_type = cv2.SVM_C_SVC,
                     C=2.67, gamma=5.383 )
 
 affine_flags = cv2.WARP_INVERSE_MAP|cv2.INTER_LINEAR
 
+# definition of 2 image preprocessing functions:
+# deskew() is for correct the tilting of each digits
+# hog() is for image edge orientation statistics
 def deskew(img):
     m = cv2.moments(img)
     if abs(m['mu02']) < 1e-2:
@@ -32,20 +39,32 @@ def hog(img):
     hist = np.hstack(hists)     # hist is a 64 bit vector
     return hist
 
-img = cv2.imread('/Users/Tao/digits.png',0)
+# import image file to variable img
+img = cv2.imread('digits.png',0)
 print img
+
+# dice the image into small peices so that each small peiced contains
+# only one digit for training and identification 
 cells = [np.hsplit(row,100) for row in np.vsplit(img,50)]
 
+# randomly pick one image dice and show it with its descrewed image side by side
 print len(cells[0])
 
 imgc = cells[30][50]
 imgc1 = deskew(imgc)
 imgc = np.hstack([imgc1,imgc])
 cv2.imshow('',imgc)
+
 #cv2.waitKey(10000)
-cv2.waitKey(0)
+cv2.waitKey(0) 
+# in mac to turn of the pop up window, we need to click and select
+# the window and then click esc to close the window and the python program will
+# continue to run the next step. The waitKey(0) still give a pause.
 cv2.destroyAllWindows()
 #cv2.waitKey(1)
+
+
+
 
 # First half is trainData, remaining is testData
 train_cells = [ i[:50] for i in cells ]
