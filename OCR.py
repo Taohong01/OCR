@@ -57,7 +57,7 @@ print len(cells[0])
 # as we can see from the above print, there are 100 elements for cells in row 0,
 # this is just a confirmation that there are 100 columns. 
 
-
+"""
 # randomly pick one image dice and show it with its descrewed image side by side
 imgc = cells[30][50]
 imgc1 = deskew(imgc)
@@ -71,8 +71,7 @@ cv2.waitKey(0)
 # continue to run the next step. The waitKey(0) still give a pause.
 cv2.destroyAllWindows()
 #cv2.waitKey(1)
-
-
+"""
 
 # divide the data into 2 sets:
 # First half is trainData, remaining is testData
@@ -157,12 +156,54 @@ print 'settings of the svm', clf
 """
 from sklearn import cross_validation
 from sklearn import metrics
+from sklearn.grid_search import GridSearchCV
+from sklearn.svm import SVC
 
+"""
+# this is a test of cross validation and cross validation score with 5-fold cross validation
 clf = sksvm.SVC(kernel='linear', C=1)
-scores = cross_validation.cross_val_score(clf, X_train, y_train, cv=5, scoring='recall')
+scores = cross_validation.cross_val_score(clf, X_train, y_train, cv=5, scoring='f1')
+print 'f1 scores of cross validation', scores   
+"""
+########################################
+# test grid search function:
+# Set the parameters by cross-validation
+tuned_parameters = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4],
+                     'C': [1, 10, 100, 1000]},
+                    {'kernel': ['linear'], 'C': [1, 10, 100, 1000]}]
 
-print 'recall scores of cross validation', scores   
+scores = ['precision', 'recall']
 
+for score in scores:
+    print("# Tuning hyper-parameters for %s" % score)
+    print()
+
+    clf = GridSearchCV(SVC(C=1), tuned_parameters, cv=5,
+                       scoring='%s_weighted' % score)
+    clf.fit(X_train, y_train)
+
+    print("Best parameters set found on development set:")
+    print()
+    print(clf.best_params_)
+    print()
+    print("Grid scores on development set:")
+    print()
+    for params, mean_score, scores in clf.grid_scores_:
+        print("%0.3f (+/-%0.03f) for %r"
+              % (mean_score, scores.std() * 2, params))
+    print()
+
+    print("Detailed classification report:")
+    print()
+    print("The model is trained on the full development set.")
+    print("The scores are computed on the full evaluation set.")
+    print()
+    y_true, y_pred = y_test, clf.predict(X_test)
+    print(classification_report(y_true, y_pred))
+    print()
+
+# Note the problem is too easy: the hyperparameter plateau is too flat and the
+# output model is the same for precision and recall with ties in quality.
 
 
 ######     Now testing      ########################
