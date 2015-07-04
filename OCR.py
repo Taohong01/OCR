@@ -156,12 +156,12 @@ print 'number of support vectors for each class', clf.n_support_
 print 'settings of the svm', clf
 """
 from sklearn import cross_validation
-
+from sklearn import metrics
 
 clf = sksvm.SVC(kernel='linear', C=1)
-scores = cross_validation.cross_val_score(clf, X_train, y_train, cv=5)
+scores = cross_validation.cross_val_score(clf, X_train, y_train, cv=5, scoring='recall')
 
-print 'scores of cross validation', scores   
+print 'recall scores of cross validation', scores   
 
 
 
