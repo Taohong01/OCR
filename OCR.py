@@ -144,12 +144,26 @@ svm = cv2.SVM()
 svm.train(trainData,responses, params=svm_params)
 svm.save('svm_data.dat')
 
+################################################################
 # Initiate a scikit learn svm and proceed model training
+
+"""
+# this is a preliminary test of the svm model training
 clf = sksvm.SVC(C=3.5, gamma=15.383 , kernel='linear')
 clf.fit(X_train, y_train)
 #print 'sklearn svm support vector original index:', clf.support_
 print 'number of support vectors for each class', clf.n_support_
 print 'settings of the svm', clf
+"""
+from sklearn import cross_validation
+
+
+clf = sksvm.SVC(kernel='linear', C=1)
+scores = cross_validation.cross_val_score(clf, X_train, y_train, cv=5)
+
+print 'scores of cross validation', scores   
+
+
 
 ######     Now testing      ########################
 
@@ -166,7 +180,7 @@ print result.ravel()
 
 X_test = np.array(testData)
 y_test = np.array(responses.ravel())
-clfresult = clf.predict(X_test)
+####clfresult = clf.predict(X_test)
 #print 'sklearn svm result:',clfresult-result
 
 
