@@ -1,6 +1,12 @@
 import cv2
 import numpy as np
 from sklearn import svm as sksvm 
+from sklearn import cross_validation
+from sklearn import metrics
+from sklearn.grid_search import GridSearchCV
+import pandas as pds
+from sklearn.metrics import classification_report
+
 
 # each digit image size specification (based on the specific image we got):
 SZ=20
@@ -143,6 +149,7 @@ svm = cv2.SVM()
 svm.train(trainData,responses, params=svm_params)
 svm.save('svm_data.dat')
 
+print 'training is done'
 ################################################################
 # Initiate a scikit learn svm and proceed model training
 
@@ -154,10 +161,6 @@ clf.fit(X_train, y_train)
 print 'number of support vectors for each class', clf.n_support_
 print 'settings of the svm', clf
 """
-from sklearn import cross_validation
-from sklearn import metrics
-from sklearn.grid_search import GridSearchCV
-from sklearn.svm import SVC
 
 """
 # this is a test of cross validation and cross validation score with 5-fold cross validation
@@ -169,41 +172,10 @@ print 'f1 scores of cross validation', scores
 # test grid search function:
 # Set the parameters by cross-validation
 tuned_parameters = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4],
-                     'C': [1, 10, 100, 1000]},
-                    {'kernel': ['linear'], 'C': [1, 10, 100, 1000]}]
+                     'C': [0.1, 0.5, 0.9, 1, 1.5, 2.0, 2.5, 3.0 ]},
+                    {'kernel': ['linear'], 'C': [0.1, 0.5, 0.9, 1, 1.5, 2.0, 2.5, 3.0 ]}]
 
-scores = ['precision', 'recall']
-
-for score in scores:
-    print("# Tuning hyper-parameters for %s" % score)
-    print()
-
-    clf = GridSearchCV(SVC(C=1), tuned_parameters, cv=5,
-                       scoring='%s_weighted' % score)
-    clf.fit(X_train, y_train)
-
-    print("Best parameters set found on development set:")
-    print()
-    print(clf.best_params_)
-    print()
-    print("Grid scores on development set:")
-    print()
-    for params, mean_score, scores in clf.grid_scores_:
-        print("%0.3f (+/-%0.03f) for %r"
-              % (mean_score, scores.std() * 2, params))
-    print()
-
-    print("Detailed classification report:")
-    print()
-    print("The model is trained on the full development set.")
-    print("The scores are computed on the full evaluation set.")
-    print()
-    y_true, y_pred = y_test, clf.predict(X_test)
-    print(classification_report(y_true, y_pred))
-    print()
-
-# Note the problem is too easy: the hyperparameter plateau is too flat and the
-# output model is the same for precision and recall with ties in quality.
+scores = ['recall']
 
 
 ######     Now testing      ########################
@@ -216,14 +188,53 @@ cv2.destroyAllWindows()"""
 deskewed = [map(deskew,row) for row in test_cells]
 hogdata = [map(hog,row) for row in deskewed]
 testData = np.float32(hogdata).reshape(-1,bin_n*4)
-result = svm.predict_all(testData)
-print result.ravel()
+
 
 X_test = np.array(testData)
 y_test = np.array(responses.ravel())
 ####clfresult = clf.predict(X_test)
 #print 'sklearn svm result:',clfresult-result
 
+
+for score in scores:
+
+    scoring = '%s' % score
+    print 'check if the the string format is correct or not:  ', scoring
+    clf = GridSearchCV(sksvm.SVC(), tuned_parameters, cv=5, scoring=scoring)
+    clf.fit(X_train, y_train)
+    print 'training is done'
+    
+    print 'Best parameters set found on development set:'
+    print
+    print clf.best_params_
+    print
+    print 'Grid scores on development set:'
+    print
+    for params, mean_score, scores in clf.grid_scores_:
+        print("%0.3f (+/-%0.03f) for %r"
+              % (mean_score, scores.std() * 2, params))
+    print
+
+    print("Detailed classification report:")
+    print
+    print("The model is trained on the full development set.")
+    print("The scores are computed on the full evaluation set.")
+    print()
+    y_true, y_pred = y_test, clf.predict(X_test)
+    print 'classification report:\n'
+    
+    print(classification_report(y_true, y_pred))
+    print 'end of the report'
+    pds.DataFrame((np.array(y_pred-y_true)==0).reshape(50,50)).to_csv('y_pred.csv')
+    
+
+# Note the problem is too easy: the hyperparameter plateau is too flat and the
+# output model is the same for precision and recall with ties in quality.
+
+
+
+result = svm.predict_all(testData)
+print result.ravel()
 
 #######   Check Accuracy   ########################
 mask = result==responses
