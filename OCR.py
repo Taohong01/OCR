@@ -173,7 +173,9 @@ print 'f1 scores of cross validation', scores
 # Set the parameters by cross-validation
 tuned_parameters = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4],
                      'C': [0.1, 0.5, 0.9, 1, 1.5, 2.0, 2.5, 3.0 ]},
-                    {'kernel': ['linear'], 'C': [0.1, 0.5, 0.9, 1, 1.5, 2.0, 2.5, 3.0 ]}]
+                    {'kernel': ['linear'], 'C': [0.1, 0.5, 0.9, 1, 1.5, 2.0, 2.5, 3.0 ]},
+                    {'kernel':['poly'], 'C':[0.000001, 0.0001, 0.001, 0.01], 'degree': [2,3,4,8,9,11], 
+                    'gamma':[1.0, 1e-1, 1e-2]}]
 
 scores = ['recall']
 
@@ -200,7 +202,7 @@ for score in scores:
 
     scoring = '%s' % score
     print 'check if the the string format is correct or not:  ', scoring
-    clf = GridSearchCV(sksvm.SVC(), tuned_parameters, cv=5, scoring=scoring)
+    clf = GridSearchCV(sksvm.SVC(), tuned_parameters, cv=20, scoring=scoring)
     clf.fit(X_train, y_train)
     print 'training is done'
     
