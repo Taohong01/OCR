@@ -145,12 +145,18 @@ class OCR(object):
         train = np.array(self.train_cells)[:,:50].reshape(-1,400).astype(np.float32) # Size = (2500,400)
         test = np.array(self.test_cells)[:,50:100].reshape(-1,400).astype(np.float32) # Size = (2500,400)
         print 'looks good'
-        nn =500
-        X = np.array(train[(nn):(nn+250),:])
+        nn =0
+        n_samples = 250
+        X = np.array(train[(nn):(nn+n_samples),:])
         print 'data X shape is ', X.shape
+        # global centering
+        X_centered = X - X.mean(axis=0)
+        # local centering
+        X_centered -= X.mean(axis=1).reshape(n_samples,-1)
         num_componets = 400
-        ica = FastICA(n_components = num_componets)
-        newX = ica.fit(X).transform(X)
+        ica = FastICA(n_components = num_componets, whiten = True)
+        newX_centered = ica.fit(X_centered).transform(X_centered)
+        print 'new X centered shape is ', newX_centered.shape
 
       
         img0 = cv2.resize(ica.mean_.reshape(20,20), (0,0), fx =5, fy=5)
@@ -161,8 +167,8 @@ class OCR(object):
             #img1 = cv2.resize(pca.components_[0,:].reshape(20,20), (0,0), fx =10, fy=10)
             #img2 = cv2.resize(pca.components_[1,:].reshape(20,20), (0,0), fx =10, fy=10)
             #img3 = cv2.resize((pca.components_[0,:]+pca.components_[1,:]+pca.components_[2,:]+pca.components_[3,:]+pca.components_[4,:]).reshape(20,20), (0,0), fx =10, fy=10)
-        #self.showImage(img0)
-        
+        self.showImage(img0)
+        """
         print 'newX shape is ', newX.shape
         
         img00 = cv2.resize(ica.mean_.reshape(20,20), (0,0), fx =5, fy=5)
@@ -174,6 +180,7 @@ class OCR(object):
             #img2 = cv2.resize(pca.components_[1,:].reshape(20,20), (0,0), fx =10, fy=10)
             #img3 = cv2.resize((pca.components_[0,:]+pca.components_[1,:]+pca.components_[2,:]+pca.components_[3,:]+pca.components_[4,:]).reshape(20,20), (0,0), fx =10, fy=10)
         self.showImage(img0)   
+        """
         
     def test(self):
         ###############################################################################
@@ -249,6 +256,8 @@ class OCR(object):
         # global centering
         faces_centered = faces - faces.mean(axis=0)
         
+        print 'faces_centered has %d dimensions: ', faces_centered.shape
+        
         # local centering
         faces_centered -= faces_centered.mean(axis=1).reshape(n_samples, -1)
         
@@ -316,8 +325,8 @@ def main():
     DigitOCR.imageDicing()
     DigitOCR.dataDividing()
     #DigitOCR.showImage(DigitOCR.img)
-    #DigitOCR.myICA()
-    DigitOCR.test2()
+    DigitOCR.myICA()
+    #DigitOCR.test2()
     
 if __name__ == '__main__':
     main()
