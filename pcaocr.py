@@ -139,13 +139,34 @@ class OCR(object):
         
         print(sum(pca.explained_variance_ratio_))
         
+    def printALine(self):
+        print '-----------------------------------------------------'
         
+        
+        
+    ###############################################################################
+    def plotGallery(self, title, images, image_shape=(64,64), n_col=3, n_row=2):
+        plt.figure(figsize=(2. * n_col, 2.26 * n_row))
+        plt.suptitle(title, size=16)
+
+        for i, comp in enumerate(images):
+            plt.subplot(n_row, n_col, i + 1)
+            vmax = max(comp.max(), -comp.min())
+            plt.imshow(comp.reshape(image_shape), cmap=plt.cm.gray,
+                       interpolation='nearest', vmin=-vmax, vmax=vmax)
+            plt.xticks(())
+            plt.yticks(())
+        plt.subplots_adjust(0.01, 0.05, 0.99, 0.93, 0.04, 0.)
+        plt.show()
+
+    ###############################################################################
+
     def myICA(self):
         # Now we prepare train_data and test_data.
         train = np.array(self.train_cells)[:,:50].reshape(-1,400).astype(np.float32) # Size = (2500,400)
         test = np.array(self.test_cells)[:,50:100].reshape(-1,400).astype(np.float32) # Size = (2500,400)
         print 'looks good'
-        nn =0
+        nn =1000
         n_samples = 250
         X = np.array(train[(nn):(nn+n_samples),:])
         print 'data X shape is ', X.shape
@@ -153,34 +174,26 @@ class OCR(object):
         X_centered = X - X.mean(axis=0)
         # local centering
         X_centered -= X.mean(axis=1).reshape(n_samples,-1)
-        num_componets = 400
+        num_componets = 60
         ica = FastICA(n_components = num_componets, whiten = True)
         newX_centered = ica.fit(X_centered).transform(X_centered)
         print 'new X centered shape is ', newX_centered.shape
 
       
         img0 = cv2.resize(ica.mean_.reshape(20,20), (0,0), fx =5, fy=5)
-
-        for ii in range(10):
-            img1 = cv2.resize(ica.components_[ii,:].reshape(20,20), (0,0), fx =5, fy=5)
-            img0 = np.hstack((img0, img1))
-            #img1 = cv2.resize(pca.components_[0,:].reshape(20,20), (0,0), fx =10, fy=10)
-            #img2 = cv2.resize(pca.components_[1,:].reshape(20,20), (0,0), fx =10, fy=10)
-            #img3 = cv2.resize((pca.components_[0,:]+pca.components_[1,:]+pca.components_[2,:]+pca.components_[3,:]+pca.components_[4,:]).reshape(20,20), (0,0), fx =10, fy=10)
-        self.showImage(img0)
-        """
-        print 'newX shape is ', newX.shape
         
-        img00 = cv2.resize(ica.mean_.reshape(20,20), (0,0), fx =5, fy=5)
-        img0 = img00
-        for ii in range(20):
-            img1 = cv2.resize(newX[ii,:].reshape(20,20), (0,0), fx =5, fy=5)
-            img0 = np.hstack((img0, img1))
-            #img1 = cv2.resize(pca.components_[0,:].reshape(20,20), (0,0), fx =10, fy=10)
-            #img2 = cv2.resize(pca.components_[1,:].reshape(20,20), (0,0), fx =10, fy=10)
-            #img3 = cv2.resize((pca.components_[0,:]+pca.components_[1,:]+pca.components_[2,:]+pca.components_[3,:]+pca.components_[4,:]).reshape(20,20), (0,0), fx =10, fy=10)
-        self.showImage(img0)   
-        """
+        self.plotGallery('ica original test image set', X[0:6,:], image_shape=(20,20), n_row=2,n_col=3)
+        self.plotGallery('ica components', ica.components_[0:6,:], image_shape=(20,20), n_row=2,n_col=3)
+        
+        sumImage = np.dot(newX_centered, ica.components_) \
+        #+ X.mean(axis=1).reshape(n_samples,-1) +X.mean(axis=0)
+        print newX_centered.shape
+        print ica.components_.shape
+        print sumImage.shape
+        
+        self.plotGallery('ica sum images', sumImage[0:6,:], image_shape=(20,20), n_row=2,n_col=3)
+        self.printALine()
+
         
     def test(self):
         ###############################################################################
@@ -264,21 +277,6 @@ class OCR(object):
         print("Dataset consists of %d faces" % n_samples)
         print("each face has %d features" % n_features )
         
-        ###############################################################################
-        def plot_gallery(title, images, n_col=n_col, n_row=n_row):
-            plt.figure(figsize=(2. * n_col, 2.26 * n_row))
-            plt.suptitle(title, size=16)
-            for i, comp in enumerate(images):
-                plt.subplot(n_row, n_col, i + 1)
-                vmax = max(comp.max(), -comp.min())
-                plt.imshow(comp.reshape(image_shape), cmap=plt.cm.gray,
-                           interpolation='nearest',
-                           vmin=-vmax, vmax=vmax)
-                plt.xticks(())
-                plt.yticks(())
-            plt.subplots_adjust(0.01, 0.05, 0.99, 0.93, 0.04, 0.)
-        
-        ###############################################################################
         # List of the different estimators, whether to center and transpose the
         # problem, and whether the transformer uses the clustering API.
         estimators = [
@@ -293,7 +291,7 @@ class OCR(object):
         ###############################################################################
         # Plot a sample of the input data
         
-        plot_gallery("First centered Olivetti faces", faces_centered[:n_components])
+        self.plotGallery("First centered Olivetti faces", faces_centered[:n_components])
 
         ###############################################################################
         # Do the estimation and plot it
@@ -312,10 +310,10 @@ class OCR(object):
             else:
                 components_ = estimator.components_
             if hasattr(estimator, 'noise_variance_'):
-                plot_gallery("Pixelwise variance",
+                self.plotGallery("Pixelwise variance",
                              estimator.noise_variance_.reshape(1, -1), n_col=1,
                              n_row=1)
-            plot_gallery('%s - Train time %.1fs' % (name, train_time),
+            self.plotGallery('%s - Train time %.1fs' % (name, train_time),
                          components_[:n_components])
         
         plt.show()
