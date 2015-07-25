@@ -29,6 +29,12 @@ from sklearn import decomposition
 
 #class for loading file
 class OCR(object):
+    """Goal of this project: Scence content understanding
+    pick any picutre, identify the object in the picture, 
+    associate the identified object with the surrounding
+    text content. 
+    Plan: expend the function OCR to larger scope gradually.
+    """
     def __init__(self, filename = 'digits.png'):        
         # import image file to variable img
         self.img = cv2.imread('digits.png',0)
@@ -160,7 +166,7 @@ class OCR(object):
         plt.show()
 
     ###############################################################################
-
+    
     def myICA(self):
         # Now we prepare train_data and test_data.
         train = np.array(self.train_cells)[:,:50].reshape(-1,400).astype(np.float32) # Size = (2500,400)
@@ -172,9 +178,13 @@ class OCR(object):
         print 'data X shape is ', X.shape
         # global centering
         X_centered = X - X.mean(axis=0)
+        self.plotGallery('original images', X[0:6,:], image_shape=(20,20), n_row=2,n_col=3)
+        self.plotGallery('first centered images', X_centered[0:6,:], image_shape=(20,20), n_row=2,n_col=3)        
         # local centering
         X_centered -= X.mean(axis=1).reshape(n_samples,-1)
-        num_componets = 60
+        self.plotGallery('2nd centered images', X_centered[0:6,:], image_shape=(20,20), n_row=2,n_col=3)    
+
+        num_componets = 200
         ica = FastICA(n_components = num_componets, whiten = True)
         newX_centered = ica.fit(X_centered).transform(X_centered)
         print 'new X centered shape is ', newX_centered.shape
@@ -185,16 +195,56 @@ class OCR(object):
         self.plotGallery('ica original test image set', X[0:6,:], image_shape=(20,20), n_row=2,n_col=3)
         self.plotGallery('ica components', ica.components_[0:6,:], image_shape=(20,20), n_row=2,n_col=3)
         
-        sumImage = np.dot(newX_centered, ica.components_) \
-        #+ X.mean(axis=1).reshape(n_samples,-1) +X.mean(axis=0)
+        #sumImage = np.dot(newX_centered, ica.components_) \
+        #+ (X.mean(axis=1).reshape(n_samples,-1) +X.mean(axis=0))/10
+        print ica.mixing_.shape
+        print newX_centered.shape
+        print ica.mean_.shape
+        print 'Is components matrix equivalent to mixing matrix after transpose? Based on this testing, the answer is', np.allclose(ica.mixing_.T, ica.components_)
+        sumImage = np.dot(newX_centered, ica.mixing_.T) +ica.mean_
         print newX_centered.shape
         print ica.components_.shape
         print sumImage.shape
         
         self.plotGallery('ica sum images', sumImage[0:6,:], image_shape=(20,20), n_row=2,n_col=3)
-        self.printALine()
-
+        print 'the conclusion of this ICA test is that to reconstruct the image, we should use the dot product of the image transformation and the mixing matrix instead of components, also we should add the mean back'
         
+        self.printALine()
+        
+
+    def evaluation(self):
+        pass
+    
+    def learningcurve(self):
+        pass
+    ###################### Satthi Playground ############
+    def loadSatthiData(self):
+        pass
+    
+    def dataCleaning(self):
+        pass
+    
+    def dataTraningTestDivision(self):
+        pass
+    
+    def featureConstruction(self):
+        pass
+    
+    def parameterSettingsForDifferentModel(self):
+        pass
+
+    def crossValidation(self):
+        pass
+
+    def learningCurve(self):
+        pass
+
+    def modelTesting(self):
+        pass
+    
+    
+    ########################Sathhi end##############
+    
     def test(self):
         ###############################################################################
         # Generate sample data
