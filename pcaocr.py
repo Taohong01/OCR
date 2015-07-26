@@ -121,10 +121,10 @@ class OCR(object):
         train = np.array(self.train_cells)[:,:50].reshape(-1,400).astype(np.float32) # Size = (2500,400)
         test = np.array(self.test_cells)[:,50:100].reshape(-1,400).astype(np.float32) # Size = (2500,400)
         print 'looks good'
-        nn =0
-        X = np.array(train[(nn):(nn+250),:])
+        nn =50
+        X = np.array(train[(nn):(nn+1550),:])
         print 'data X\n', X.shape
-        num_componets =10
+        num_componets =50
         pca = PCA(n_components=num_componets)
         pca.fit(X)
         #print 'pca components', pca.components_
@@ -132,18 +132,16 @@ class OCR(object):
         
         img0 = cv2.resize(pca.mean_.reshape(20,20), (0,0), fx =5, fy=5)
         img0 = np.zeros(img0.shape)
-
-        for ii in range(num_componets):
-            img1 = cv2.resize(pca.components_[ii,:].reshape(20,20), (0,0), fx =5, fy=5)
-            img0 = np.hstack((img0, img1))
-            #img1 = cv2.resize(pca.components_[0,:].reshape(20,20), (0,0), fx =10, fy=10)
-            #img2 = cv2.resize(pca.components_[1,:].reshape(20,20), (0,0), fx =10, fy=10)
-            #img3 = cv2.resize((pca.components_[0,:]+pca.components_[1,:]+pca.components_[2,:]+pca.components_[3,:]+pca.components_[4,:]).reshape(20,20), (0,0), fx =10, fy=10)
-        self.showImage(img0*10)
+        sumImg = np.dot(pca.transform(X), pca.components_) + pca.mean_
+        
+        self.plotGallery('pca components', pca.components_[20:50,:], image_shape=(20,20), n_row=10,n_col=3)
+        self.plotGallery('reconstructed images', sumImg[0:30,:], image_shape=(20,20), n_row=10,n_col=3)
 
         print 'pca n_components', pca.n_components_
         
         print(sum(pca.explained_variance_ratio_))
+        
+    ###############################################################################
         
     def printALine(self):
         print '-----------------------------------------------------'
@@ -373,7 +371,8 @@ def main():
     DigitOCR.imageDicing()
     DigitOCR.dataDividing()
     #DigitOCR.showImage(DigitOCR.img)
-    DigitOCR.myICA()
+    DigitOCR.myPCA()
+    #DigitOCR.myICA()
     #DigitOCR.test2()
     
 if __name__ == '__main__':
