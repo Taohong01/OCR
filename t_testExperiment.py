@@ -4,7 +4,7 @@ Created on Mon Aug 17 19:03:53 2015
 
 @author: Tao
 """
-mport numpy as np
+import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
 
@@ -50,7 +50,14 @@ def t_test(s1,s2, tailnumber = 2, pvalue =0.05):
         return (tvalue, tc, True)
 
     
-# test:    
+# test: 
+# in the test below, we generate 2 sets of samples, repeatedly. 
+#    (from 10 samples, up to 300) 
+# by control the number of samples in each set and the center and 
+# standard deviation of each set, we want to show if a null hypothesis 
+# can be sucessfully rejected depends on the number of samples as well as 
+# the actually distinguishability of the two original population for sampling.
+# i.e., the centers of the two normal distributions. 
 tr = np.zeros((300,3))
 for i in range(10, 300):
     s1,s2 = sampleFrom2Origin(10,16,i, 12.5,6, i)
