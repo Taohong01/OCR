@@ -372,7 +372,7 @@ def main():
     DigitOCR.dataDividing()
     #DigitOCR.showImage(DigitOCR.img)
     DigitOCR.myPCA()
-    #DigitOCR.myICA()
+    DigitOCR.myICA()
     #DigitOCR.test2()
     
 if __name__ == '__main__':
