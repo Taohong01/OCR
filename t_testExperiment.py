@@ -9,21 +9,26 @@ from scipy import stats
 import matplotlib.pyplot as plt
 
 def sampleGenerator(mean, std, size):
+    """generating samples from normal distribution"""
     sample = np.random.normal(mean, std, size)
     return sample
 
 
 def sampleFromSameOrigin(mean, std, size1, size2):
+    """generating 2 sets of samples from the same normal distribution"""
     sample1 = sampleGenerator(mean, std, size1)
     sample2 = sampleGenerator(mean, std, size2)
     return (sample1, sample2)
 
 def sampleFrom2Origin(mean1, std1, size1, mean2, std2, size2):
+    """generating 2 sets of samples from 2 independent normal distribution"""
     sample1 = sampleGenerator(mean1, std1, size1)
     sample2 = sampleGenerator(mean2, std2, size2)
     return (sample1, sample2)
 
 def sampleSize_Mean_Variance(s1):
+    """calculate number of samples, the mean, and the variance
+    from a set of sample, s1"""
     size_s1 = len(s1)
     mean_s1 = sum(s1)/size_s1
     # the calculation of variance is a different for a population and a sample 
@@ -33,6 +38,7 @@ def sampleSize_Mean_Variance(s1):
     return (size_s1, mean_s1, variance_s1)
 
 def tValueOf2Samples(s1,s2):
+    """ calculate the t value from 2 sets of samples"""
     n1, mean_s1, var_s1 = sampleSize_Mean_Variance(s1)
     n2, mean_s2, var_s2 = sampleSize_Mean_Variance(s2)
     t = (mean_s2 - mean_s1) / np.sqrt(var_s1/n1 + var_s2/n2)
@@ -40,6 +46,8 @@ def tValueOf2Samples(s1,s2):
 
 
 def t_test(s1,s2, tailnumber = 2, pvalue =0.05):
+    """ perform a t-test and determine if the null hypothesis can be 
+    rejected or not. return false if rejected, retrun true if fail to reject."""
     tvalue = tValueOf2Samples(s1,s2)
     tc = stats.t.ppf(1-pvalue/tailnumber, len(s1)+len(s2)-2)
     if abs(tvalue) >= tc:
