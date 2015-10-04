@@ -33,7 +33,6 @@ class OCR(object):
     pick any picutre, identify the object in the picture, 
     associate the identified object with the surrounding
     text content. 
-    Plan: expend the function OCR to larger scope gradually.
     """
     def __init__(self, filename = 'digits.png'):        
         # import image file to variable img
