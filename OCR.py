@@ -183,10 +183,10 @@ scores = ['recall']
 ######     Now testing      ########################
 
 imgcc=np.vstack(np.hstack(test_cells))
-"""
+""" """
 cv2.imshow('',imgcc)
 cv2.waitKey(0)
-cv2.destroyAllWindows()"""
+cv2.destroyAllWindows()
 deskewed = [map(deskew,row) for row in test_cells]
 hogdata = [map(hog,row) for row in deskewed]
 testData = np.float32(hogdata).reshape(-1,bin_n*4)
@@ -194,10 +194,11 @@ testData = np.float32(hogdata).reshape(-1,bin_n*4)
 
 X_test = np.array(testData)
 y_test = np.array(responses.ravel())
+
 ####clfresult = clf.predict(X_test)
 #print 'sklearn svm result:',clfresult-result
 
-
+"""
 for score in scores:
 
     scoring = '%s' % score
@@ -242,3 +243,4 @@ print result.ravel()
 mask = result==responses
 correct = np.count_nonzero(mask)
 print correct*100.0/result.size
+"""
