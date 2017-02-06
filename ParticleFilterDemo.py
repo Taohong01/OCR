@@ -268,21 +268,47 @@ def compute_mean_point(particles):
 # ------------------------------------------------------------------------
 class WeightedDistribution(object):
     def __init__(self, state):
+        # the state argument are actually assigned with a list of particles
+        # when this class is used. Essentiall, the particles represent
+        # a kind of probability distribution. Now, it actaully converts
+        # these particles into a state, representing the probability distritution
+
         accum = 0.0
+        #pick all the particles with finite weigths and filter out zeroes.
         self.state = [p for p in state if p.w > 0]
         self.distribution = []
         for x in self.state:
-            accum += x.w
+            accum += x.w # adding up weights and append the weight accumulation
+                         # to the distrubtion variable.
             self.distribution.append(accum)
+        # after instantiate an object of this weightedDistribution
+        # we get two lists of variables, one is state and one is distribution
+        # state stands for particles distribution list.
+        #    Each item in this state list, stands for a particle (location)
+        #  and a weight(probability)
+        # distribution stands for accumulation of the particle weight list.
 
     def pick(self):
+        # this is actually how this class is used for sampling:
+        #
         try:
             return self.state[bisect.bisect_left(self.distribution, random.uniform(0, 1))]
         except IndexError:
             # Happens when all particles are improbable w=0
             return None
 
-
+        # Below is some test code to show the function of bisect.bisect_left
+        # Basically, this is a processing convert uniform random sample between
+        # 0 and 1 into a random sample generated from a nonuniform probability
+        # distribution, using the accumulation probability function
+        # (self.distribution) and the probability distribution (state)
+        # import bisect
+        # import random
+        # print random.uniform(0, 1)
+        # print bisect.bisect_left([0.1, .2, .5, .55, .57, .9, 1.0], random.uniform(0, 1))
+        # print bisect.bisect_left([0.1, .2, .5, .55, .57, .9, 1.0], random.uniform(0, 1))
+        # print bisect.bisect_left([0.1, .2, .5, .55, .57, .9, 1.0], random.uniform(0, 1))
+        # where [0.1, .2, .5, .55, .57, .9, 1.0] stands for a probability accumulation function.
 # ------------------------------------------------------------------------
 class Particle(object):
     def __init__(self, x, y, heading=None, w=1, noisy=False):
