@@ -1,6 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from datetime import datetime
+from threading import Timer
 
 class Stock(object):
 
@@ -219,7 +221,7 @@ def showStock2(StockName = 'SPY', DaysBack=20):
 
 
 
-def showStock(StockName = 'SPY', DaysBack=20):
+def showStock(StockName = 'SPY', DaysBack=20, ExportFig = True, ShowFig = True):
 
 
     # from datetime import datetime
@@ -246,6 +248,8 @@ def showStock(StockName = 'SPY', DaysBack=20):
     StockInterestedAfter1dayAverage, std1 = StockInterested.averageGivenPeriod(1)
     StockInterestedAfter5dayAverage, std5 = StockInterested.averageGivenPeriod(5)
     StockInterestedAfter20Average, std20 = StockInterested.averageGivenPeriod(20)
+
+
 
     plt.plot(StockInterestedAfter1dayAverage,'k-o')
     plt.plot(StockInterestedAfter5dayAverage, 'b-')
@@ -276,7 +280,14 @@ def showStock(StockName = 'SPY', DaysBack=20):
     #plt.legend()
     plt.gca().invert_xaxis()
     plt.title(StockName)
-    plt.show()
+    if ExportFig == True:
+        filepath = '/Users/Tao/Google Drive/StockPlots/'
+        filename = StockName + str(DaysBack) +'.png'
+        plt.savefig(filepath+filename)
+    if ShowFig == True:
+        plt.show()
+    return plt.figure()
+
 
 
     #a200 = Stock(stockname = stockname).averageGivenPeriod(200)
@@ -318,26 +329,39 @@ def main():
 
     StockList = ['NDAQ', 'SPY', 'JNPR', 'WMT', 'MAT', 'ZG', 'AMAT', 'EBAY', 'GOLD', 'VMW', 'NVDA','TSLA']
     GenlStockList = ['NDAQ', 'SPY', 'GOLD', 'AAPL', 'GOOG','VMW', 'NVDA','TSLA']
-    SemiStockList = [ 'NVDA', 'AMD', 'INTC', 'AMAT','ASML', 'KLAC', 'COHR', 'QCOM' ]
+    SemiStockList = [ 'NVDA', 'AMD', 'INTC', 'AMAT','ASML', 'KLAC', 'COHR', 'QCOM' , 'VIAV', 'IIVI']
     EcomStockList = ['BABA', 'AMZN', 'EBAY', 'PYPL']
     CloudStockList = ['GOOG','GOOGL','YHOO', 'VMW', 'JNPR','TWTR','MSFT']
     CarStockList = ['TSLA', 'F', 'GM', 'FCAU']
+    BioMedStockList = ['JNJ','ILMN', 'WBA']
+    LaserStockList = ['OCLR', 'IPGP']
     AIStockList = []
     Ab5dayMAStockList = []
-    GoodStockList = ['COHR','GOLD','VMW','AMAT','NVDA', 'ASML','LRCX']
+    GoodStockList = ['ASML','LRCX','AMAT','COHR','GOLD','VMW','NVDA', 'AMD']
     # Current good ones are gold, cohr, vmw, nvda, amat, lrcx
 
     DownTurnStockList = ['NVDA', 'AMD', 'QCOM', 'BABA', 'AAPL']
+    FinanceStockList = ['BAC','GS']
+
+    AllStockList = GenlStockList + SemiStockList + EcomStockList \
+                   + CloudStockList + CarStockList + BioMedStockList
 
 
 
+    MostStockList = ['AMZN', 'AMAT'] #['IPGP','NVDA','VMW', 'GOLD', 'COHR']
+
+    import matplotlib.pyplot as plt2, mpld3
+    #plt2.plot([3, 1, 4, 1, 5], 'ks-', mec='w', mew=5, ms=20)
+    #mpld3.show()
 
 
-
-    MostStockList = ['TSLA','VMW', 'GM']
-    DaysBack = 20
-    for Stock in MostStockList:
-        showStock(StockName=Stock, DaysBack=DaysBack)
+    DaysBackList = [15, 20, 50, 200]
+    for Stock in AllStockList:
+        for DaysBack in DaysBackList:
+            print Stock +':' + str(DaysBack)
+            fig = showStock(StockName=Stock, DaysBack=DaysBack, ShowFig=False)
+        #htmlfig = mpld3.fig_to_html(fig)
+        #print htmlfig
 
     # showStock(StockName='NDAQ', DaysBack=80)  # likely to go up,
     # showStock(StockName='SPY', DaysBack=40)  # likely to go up,
@@ -375,6 +399,31 @@ def main():
     
     
 if __name__=='__main__':
+
+    # x = datetime.today()
+    # y = x.replace(day=x.day + 0, hour=8, minute=44, second=10, microsecond=0)
+    # delta_t = y - x
+    #
+    # secs = delta_t.seconds + 1
+    #
+    #
+    # def hello_world():
+    #     print "hello world"
+    #
+    # print "start"
+    # minutes = 50
+    # hours = 10
+    # while True:
+    #     minutes += 1
+    #     minutes %= 59
+    #     hours = hours + 1 if (minutes == 0) else hours
+    #     y = x.replace(day=x.day + 0, hour=hours, minute=minutes, second=0, microsecond=0)
+    #     delta_t = y - x
+    #
+    #     secs = delta_t.seconds + 1
+    #     t = Timer(secs, hello_world)
+    #     t.start()
+
     main()
     
     

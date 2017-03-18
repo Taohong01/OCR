@@ -221,7 +221,7 @@ def add_little_noise(*coords):
 
 
 def add_some_noise(*coords):
-    return add_noise(0.1, *coords)
+    return add_noise(0.02, *coords)
 
 
 # This is just a gaussian kernel I pulled out of my hat, to transform
@@ -290,7 +290,8 @@ class WeightedDistribution(object):
 
     def pick(self):
         # this is actually how this class is used for sampling:
-        #
+        # following the probability distribution defined by state
+        # to generate new particles.
         try:
             return self.state[bisect.bisect_left(self.distribution, random.uniform(0, 1))]
         except IndexError:
@@ -309,9 +310,18 @@ class WeightedDistribution(object):
         # print bisect.bisect_left([0.1, .2, .5, .55, .57, .9, 1.0], random.uniform(0, 1))
         # print bisect.bisect_left([0.1, .2, .5, .55, .57, .9, 1.0], random.uniform(0, 1))
         # where [0.1, .2, .5, .55, .57, .9, 1.0] stands for a probability accumulation function.
+        # also see the demo program,
+        # /Users/Tao/GitHub/OCR/ArbitraryProbabilityRandomSampleGenerationDemo.py
 # ------------------------------------------------------------------------
 class Particle(object):
     def __init__(self, x, y, heading=None, w=1, noisy=False):
+        # note when noisy is set to true, the intial coordinates, x and y will
+        # be added with some random noise, this is the case when new particles
+        # are generated, as we see in the program when this particle object is
+        # instantiated for new particles. The noise can help spread out the
+        # new particles, however, also blur the probability distribution a little.
+        # I am not sure the consequence.
+
         if heading is None:
             heading = random.uniform(0, 360)
         if noisy:
@@ -418,6 +428,12 @@ class Robot(Particle):
 
 # ------------------------------------------------------------------------
 
+
+"""
+
+This is where the program actually start and run
+
+"""
 world = Maze(maze_data)
 world.draw()
 
@@ -487,6 +503,7 @@ while True:
     dist = WeightedDistribution(particles)
 
     for _ in particles:
+        #note the same number of particles will be generated.
         p = dist.pick()
         if p is None:  # No pick b/c all totally improbable
             new_particle = Particle.create_random(1, world)[0]
@@ -494,8 +511,13 @@ while True:
             new_particle = Particle(p.x, p.y,
                                     heading=robbie.h if ROBOT_HAS_COMPASS else p.h,
                                     noisy=True)
+            # note noisy=True means, some perturbation to the new particle position.
+            # helps spread out the new particles. Also note the heading direction
+            # of all the new particles are set to the same as the robot.
+
         new_particles.append(new_particle)
 
+    # use new particles to replace old particles
     particles = new_particles
 
     # ---------- Move things ----------
