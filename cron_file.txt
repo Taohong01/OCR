@@ -1,0 +1,1 @@
+* */6 * * * /Users/Tao/anaconda2/bin/python /Users/Tao/GitHub/OCR/StockAnalysis.py >> stock.log
