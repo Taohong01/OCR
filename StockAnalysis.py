@@ -9,7 +9,7 @@ from threading import Timer
 import StringIO
 import requests
 #from mpldatacursor import datacursor
-
+from matplotlib.finance import candlestick_ohlc
 from pandas_datareader import data as pdr
 import fix_yahoo_finance as yf
 yf.pdr_override() # <== that's all it takes :-)
@@ -49,26 +49,23 @@ class Stock(object):
         self.stockName = stockname
         self.startDate = sDate
         self.endDate = eDate
-        #print "23 works"
-        #print self.composeYahooFinanceQueryURL_Version2()
-        #print self.composeGoogleFinanceQueryURL_Version1()
-        #print "26 works"
+
         #print "http://www.google.com/finance/historical?q=NASDAQ:ADBE&startdate=Mar+12%2C+2002&enddate=Aug+27%2C+2017&output=csv"
-        #self.StockData = self.downloadHistoryCSVviaURL(self.composeYahooFinanceQueryURL_Version2())
 
-        #self.StockData = self.downloadHistoryCSVviaURLFromGoogle(self.composeGoogleFinanceQueryURL_Version2())
-
-        #self.StockData = self.downloadHistoryCSVviaURLFromYahoo(self.composeYahooFinanceQueryURL_Version3())
-        self.StockData = self.downloadHistoryCSVviaYahooFinancePackage()
-        #print self.StockData
-        self.StockData =self.StockData.convert_objects(convert_numeric=True)
-        #print "25 works"
-        #print self.StockData
-        """Note: as being said, Yahoo changed their finance querry format.
-        I therefore make corresponding changes to my querry composer
+        self.StockData = self.downloadHistoryCSVviaURLFromGoogle(self.composeGoogleFinanceQueryURL_Version2())
+        if self.StockData is None:
+            while True:
+                try:
+                    self.StockData = self.downloadHistoryCSVviaYahooFinancePackage()
+                    self.StockData = self.StockData.convert_objects(convert_numeric=True)
+                    if self.StockData is None or 'Close' not in self.StockData:
+                        raise KeyError('incomplete data downloading')
 
 
-        """
+                except KeyError:
+                    continue
+                break
+
 
 
         newQuery = """
@@ -103,11 +100,19 @@ class Stock(object):
     def downloadHistoryCSVviaURLFromGoogle(self, url):
         print url
         StockDataFrame = pd.read_csv(url)
-        print StockDataFrame
-        print 'trouble if you dont see this line'
-        # the data resolution is one day that is
-        # a big restriction to analyze stock
-        # fluctuation details
+
+        #print StockDataFrame
+
+        StockDataFrame = pd.DataFrame(StockDataFrame.values, columns=['Date', 'Open', 'High', 'Low', 'Close', 'Volume'])
+        StockDataFrame['Date'] = pd.to_datetime(StockDataFrame['Date'])
+        StockDataFrame['Date'] = StockDataFrame['Date'].dt.strftime('%Y-%m-%d')
+        StockDataFrame=pd.DataFrame(StockDataFrame.values,index=StockDataFrame['Date'],columns=['Date', 'Open', 'High', 'Low', 'Close', 'Volume'])
+
+        StockDataFrame.to_csv('test.csv')
+        if StockDataFrame.isin(['-']).values.any():
+            StockDataFrame = None
+            print 'google has missing data for ' + self.stockName + ', so try yahoo.'
+
         self.StockData = StockDataFrame
         return StockDataFrame
 
@@ -574,38 +579,34 @@ def main():
 
 
     StockList = ['^IXIC', 'NDAQ', 'SPY', 'JNPR', 'WMT', 'MAT', 'ZG', 'AMAT', 'EBAY', 'GOLD', 'VMW', 'NVDA','TSLA']
-    GenlStockList = ['NDAQ', 'SPY', 'GOLD', 'AAPL', 'GOOG','VMW', 'NVDA','TSLA']
-    SemiStockList = [ 'NVDA', 'AMD', 'INTC', 'AMAT','ASML', 'KLAC', 'COHR', 'QCOM' , 'VIAV', 'IIVI']
+    GenlStockList = ['NDAQ', 'SPY', 'GOLD']
+
+    SemiStockList = [ 'MU', 'NVDA', 'AMD', 'INTC', 'AMAT','ASML', 'KLAC', 'COHR', 'QCOM' , 'VIAV', 'IIVI']
     EcomStockList = ['BABA', 'AMZN', 'EBAY', 'PYPL']
-    CloudStockList = ['GOOG','GOOGL','YHOO', 'VMW', 'JNPR','TWTR','MSFT', 'NOW', 'SPLK', 'SAP']
+    CloudStockList = ['GOOG','GOOGL','VMW', 'JNPR','TWTR','MSFT', 'NOW', 'SPLK', 'SAP', 'PYPL', 'IBM', 'NOW', 'BABA']
     CarStockList = ['TSLA', 'F', 'GM', 'FCAU']
     BioMedStockList = ['JNJ','ILMN', 'WBA']
-    LaserStockList = ['OCLR', 'IPGP']
+    LaserStockList = ['OCLR', 'IPGP', 'COHR']
     AIStockList = []
-    Ab5dayMAStockList = []
     NewStockList = ['CLDR', 'SNAP']
+
+
     GoodStockList1 = ['NDAQ', 'SPY', 'GOLD','VMW','NVDA', 'AMD','COHR', 'NOW', 'PYPL', 'BABA']
     GoodStockList2 = [ 'JNPR', 'ASML','LRCX','AMAT', 'TSLA', 'AAPL']
-    GoodStockList3 = ['^IXIC', 'FCAU','IPGP', 'CLDR']
-    # Current good ones are gold, cohr, vmw, nvda, amat, lrcx
+    GoodStockList3 = ['^IXIC', 'FCAU']
+    GoodStockList4 =['MU', 'IPGP']
 
-    DownTurnStockList = ['NVDA', 'AMD', 'QCOM', 'BABA', 'AAPL']
     FinanceStockList = ['BAC','GS']
-    SpecialStockList = ['AAPL']
 
 
-    StockComment = {}
 
-    StockComment['ASML'] = {'15D':'good', '20D':'good', '50D':'good', '200D':'good', '500D':'good'}
-    StockComment['AMD']  = {''}
-    StockComment['COHR'] = {'15-day predictablility is fairly good. Today it just grew over expectation, so tomorrow, it might drop a little bit. in the last 15 days the trend is moving upward. 20-day'}
-    StockComment['QCOM'] = {'short term moving down. it might half week to turn up if it could. It is not a good stock for 1 month scale investment'}
-    StockComment['PYPL'] = {'the short term and long term both looks pretty good.'}
-    LongTermGoodStockList = []
     #AllStockList = GenlStockList + SemiStockList \
-    AllStockList = EcomStockList \
-                   + CloudStockList + CarStockList + BioMedStockList
+    AllStockList = StockList + GenlStockList + EcomStockList \
+                   + CloudStockList + CarStockList + BioMedStockList + LaserStockList + SemiStockList
 
+    AllStockList = list(set(AllStockList))
+    print AllStockList
+    AllStockList= ['GOOG', 'GOOGL', 'TSLA', 'IIVI', 'AMAT', 'NVDA', 'WBA', 'COHR', 'GM', 'MSFT', 'IBM', 'SPY', 'GOLD', 'TWTR', 'SPLK', 'FCAU', 'AMD', '^IXIC', 'SAP', 'ASML', 'BABA', 'OCLR', 'INTC', 'F', 'PYPL', 'ZG', 'WMT', 'ILMN', 'QCOM', 'JNJ', 'AMZN', 'MAT', 'IPGP', 'EBAY', 'MU', 'VIAV', 'NDAQ', 'JNPR', 'VMW', 'NOW', 'KLAC']
 
 
     MostStockList = ['AMZN', 'AMAT'] #['IPGP','NVDA','VMW', 'GOLD', 'COHR']
@@ -615,19 +616,25 @@ def main():
     #mpld3.show()
 
 
-    DaysBackList = [5, 10, 20, 50, 200]
-    for Stock in GoodStockList1+GoodStockList2:
+    DaysBackList = [10, 20, 50, 200]
+    for Stock in AllStockList: #GoodStockList1+GoodStockList2+GoodStockList3:
+        S = DeriveMetrics(StockName_=Stock)
         for DaysBack in DaysBackList:
             print Stock +':' + str(DaysBack)
             #fig = showStock(StockName=Stock, DaysBack=DaysBack, ShowFig=False)
-            NewPlot(StockName_=Stock, DaysBack_=DaysBack, ShowFig=False, PrintFlag=False)
+            NewPlot(Stock=S, DaysBack_=DaysBack, ShowFig=False, PrintFlag=False)
         #htmlfig = mpld3.fig_to_html(fig)
         #print htmlfig
 
-    StockGrowthCompareList = ['^IXIC', 'COHR', 'PYPL', 'IPGP', 'NVDA', 'AMD', 'AMAT', 'KLAC', 'MU']
+    StockGrowthCompareList = AllStockList#['^IXIC', 'COHR', 'PYPL', 'IPGP', 'NVDA', 'AMD', 'AMAT', 'KLAC', 'MU']
     DaysBackList = [5, 15, 20, 50, 200]
+    SList = [DeriveMetrics(StockName_=SName) for SName in StockGrowthCompareList]
     for DaysBack in DaysBackList:
-        MultiStockGrowthComparison(StockNameList_=StockGrowthCompareList, DaysBack_=DaysBack, ExportFig=True, ShowFig=False)
+        fig = plt.figure(figsize=(8, 14))
+        ax1 = fig.add_subplot(211)
+        MultiStockGrowthComparison(StockInstanceList_=SList, DaysBack_=DaysBack, ExportFig=True, ShowFig=False, figsettings=(fig,ax1))
+        ax2 = fig.add_subplot(212)
+        MultiStockBollingerPhaseComparison(StockInstanceList_=SList, DaysBack_=DaysBack, ExportFig=True, ShowFig=False, figsettings=(fig,ax2))
 
 
 def UsingStockStats(StockName_):
@@ -648,7 +655,7 @@ def UsingStockStats(StockName_):
 
 
 def DeriveMetrics(StockName_):
-    import datetime
+
     [year, month, day] = datetime.date.today().isoformat().split('-')
     today = [str(int(month)), str(int(day)), year]
     print today
@@ -679,9 +686,9 @@ def DeriveMetrics(StockName_):
     return S
 
 
-def NewPlot(StockName_, DaysBack_=50, ExportFig = True, ShowFig = True, PrintFlag = True):
-    from matplotlib.finance import candlestick_ohlc
-    S = DeriveMetrics(StockName_=StockName_)
+def NewPlot(Stock, DaysBack_=50, ExportFig = True, ShowFig = True, PrintFlag = True):
+
+    S = Stock
 
     # x = np.linspace(-S.StockData.shape[0] + 1, 0, S.StockData.shape[0])
     # print 'last 20 x is'
@@ -801,7 +808,148 @@ def NewPlot(StockName_, DaysBack_=50, ExportFig = True, ShowFig = True, PrintFla
         # mpld3.save_html(fig, filepath+filename2)
     if ShowFig == True:
        plt.show()
-    return plt.figure()
+    plt.close('all')
+    #return plt.figure()
+
+def test():
+    S = DeriveMetrics('COHR')
+    ReturnVsVolumn(Stock=S)
+    S = DeriveMetrics('AAPL')
+    ReturnVsVolumn(Stock=S)
+
+def ReturnVsVolumn(Stock, DaysBack_=50, ExportFig = True, ShowFig = True, PrintFlag = True):
+
+    S = Stock
+
+
+    plotoffset = 1
+    xAxis = S.StockData['DaysBack']
+    fig = plt.figure(figsize=(8, 8))
+    ax1 = fig.add_subplot(111)
+    print S.StockData
+    ax1.plot(xAxis, np.log(np.abs(S.StockData['NextDayGain|Loss%'])), label='return%')
+    ax1.plot(xAxis[1::], -np.diff(np.log(S.StockData['Volume'])),label='Volumn')
+
+    #ax1.plot((S.StockData['Volume']), np.abs(S.StockData['NextDayGain|Loss%']).shift(1), '.')
+    #ax1.plot((S.StockData['Volume']), (S.StockData['NormalizedBollinger']), '.')
+    #ax1.plot(np.diff(np.log(S.StockData['Volume'])),np.log(np.abs(S.StockData['NextDayGain|Loss%']))[0:-1],  '.')
+
+    plt.show()
+
+    # candlestick_ohlc(ax1, S.StockData[['DaysBack', 'Open','High', 'Low', 'Close']].values, width=.75, colorup='g', colordown='r',alpha=0.75)
+    # #ax1.plot(xAxis, S.StockData['Close'],'k-o', markersize=2)
+    # ax1.plot(xAxis, S.StockData['5DMovAve'],'b-')
+    # ax1.plot(xAxis, S.StockData['20DMovAve'],'r-')
+    # ax1.plot(xAxis, S.StockData['200DMovAve'],'k-')
+    # ax1.plot(xAxis, S.StockData['20DMovAve'] + S.StockData['UpBlg'], 'y-')
+    # ax1.plot(xAxis, S.StockData['20DMovAve'] + S.StockData['LwBlg'], 'g-')
+    # ax1.grid(b=True, which='both', color='0.65', linestyle='-')
+    #
+    # sDate = 0
+    # eDate = DaysBack_
+    # ax1.set_xlim([xAxis[eDate-1], xAxis[sDate]+plotoffset])
+    #
+    # daysback = eDate - sDate
+    # mksize = 2
+    # rat = 1.5
+    # if daysback < 50:
+    #     mksize = 10
+    #     rat = 2
+    #
+    # x =  S.StockData['DaysBack'].ix[sDate:eDate].values[::-1]
+    # y = S.StockData['LstSqk_'+str(eDate-sDate)+'Days'][eDate-1] * x + S.StockData['LstSqbias_'+str(eDate-sDate)+'Days'][eDate-1]
+    # #print y
+    # #print S.StockData['Date'][0:20][::-1]
+    # #ax1.plot(xAxis, S.StockData['Close'], 'ko', label='Original data', markersize=mksize)
+    # ax1.plot(xAxis[sDate:eDate][::-1], y, 'r-', label='Fitted line', markersize=1)
+    # ax1.set_title(S.stockName + ': ' + str(datetime.date.today()) + ': ' + str('round(residues / (mid2 ** 2), 6)'))
+    #
+    #
+    #
+    # maxStock = max(S.StockData['Close'][sDate:eDate])
+    # minStock = min(S.StockData['Close'][sDate:eDate])
+    # mid = (minStock + maxStock) / 2
+    # mid2 = (min(y) + max(y)) / 2
+    # diff = maxStock - minStock
+    # diff2 = max(y) - min(y)
+    # percent = diff / mid2
+    # offset = (S.StockData['Close'][sDate] - (mid2 - (diff) / 2 * rat)) / mid2
+    #
+    # ax1.set_ylim([mid2 - (diff) / 2 * rat, mid2 + (diff) / 2 * rat])
+    #
+    # ax2 = ax1.twinx()
+    # ax2.set_ylim([-percent / 2 * rat , percent / 2 * rat] )
+    # ax2.yaxis.set_major_locator(MaxNLocator(20))
+    #
+    # ax3 = fig.add_subplot(414)
+    # ax3.set_xlim([xAxis[eDate - 1], xAxis[sDate]+plotoffset])
+    #
+    # #ax1.plot(xAxis, S.StockData['LstSqk_10Days']*100)
+    # ax3.plot(xAxis, S.StockData['14-Day RSI'], 'o-')
+    # ax3.plot(xAxis, np.ones(xAxis.shape) * 100, '-')
+    # ax3.plot(xAxis, np.ones(xAxis.shape) * 70, 'r-')
+    # ax3.plot(xAxis, np.ones(xAxis.shape) * 50, 'g-')
+    # ax3.plot(xAxis, np.ones(xAxis.shape) * 30, 'k-')
+    # ax3.plot(xAxis, np.ones(xAxis.shape) * 0, '-.')
+    # #ax1.plot(xAxis, S.StockData['14-Day RSI'])
+    #
+    # ax3.plot(xAxis, S.StockData['StcOsc K%']*100, 'k-.')
+    # ax3.plot(xAxis, S.StockData['StcOsc D%']*100, 'k-')
+    # ax3.plot(xAxis, S.StockData['StcOsc D%D%'] * 100, 'r-')
+    #
+    # #plt.figure()
+    #
+    # #ax3.plot(xAxis, (S.StockData['NormalizedBollinger'] + np.ones(xAxis.shape))*50, 'g-o')
+    # ##ax1.plot(xAxis, S.StockData['StcOsc K%']*20 - S.StockData['StcOsc D%'] * 20+np.ones(xAxis.shape) * 175, 'y-o')
+    # ##ax1.plot(xAxis, np.ones(xAxis.shape) * 175, 'y-')
+    # #ax1.grid()
+    # #ax1.ylim(120,190)
+    # #plt.show()
+    #
+    # """
+    #
+    # plt.figure()
+    # plt.plot(xAxis, (S.StockData['StcOsc K%'] - S.StockData['StcOsc D%'])*20 , 'y-o')
+    # #plt.plot(xAxis, np.ones(xAxis.shape) * 175, 'y-')
+    # plt.plot(xAxis, S.StockData['NextDayGain|Loss%']*5, 'r-o')
+    # plt.xlim(xAxis[eDate - 1], xAxis[sDate])
+    # plt.ylim(-20, 20)
+    # plt.grid()
+    #
+    # # plt.plot(xAxis, S.StockData['LstSqk_20Days'])
+    # plt.show()
+    # #print (S.StockData['Date'].diff())#.dt.days())#[0] - S.StockData['Date'][1]).days()#total_seconds()
+    # """
+    # #plt.figure()
+    # #plt.plot(S.StockData['NextDayGain|Loss%'].apply(lambda x: int(x>0)), S.StockData['StcOsc K%-D%'].apply(lambda x: int(x>0)),'o')
+    # # print sum((S.StockData['NextDayGain|Loss%'].apply(lambda x: int(x > 0)) + S.StockData['StcOsc K%-D%'].apply(lambda x: int(x > 0)))==0)
+    # # print sum((S.StockData['NextDayGain|Loss%'].apply(lambda x: int(x > 0)) + S.StockData['StcOsc K%-D%'].apply(lambda x: int(x > 0)))==2)
+    # # print sum((S.StockData['NextDayGain|Loss%'].apply(lambda x: int(x > 0)) + S.StockData['StcOsc K%-D%'].apply(lambda x: int(x > 0))) >-10)
+    #
+    #
+    # #plt.grid()
+    # #plt.show()
+    # if PrintFlag == True:
+    #     print S.StockData#['LstSqk_20days']
+    # S.StockData.to_csv(S.stockName+'.csv')
+    # #print sum(S.StockData['NextDayGain|Loss%'][0:100] * S.StockData['StcOsc K%-D%'][0:100] > 0)
+    # #print sum(S.StockData['NextDayGain|Loss%'][0:100] * S.StockData['StcOsc K%-D%'][0:100] < 0)
+    #
+    # ##########################################
+    #
+    #
+    # if ExportFig == True:
+    #     filepath = '/Users/Tao/Google Drive/StockPlots/'
+    #     filename = S.stockName + str(DaysBack_) + '_.png'
+    #     filename2 = S.stockName + str(DaysBack_) + '_.html'
+    #     plt.savefig(filepath + filename)
+    #     # mpld3.save_html(fig, filepath+filename2)
+    # if ShowFig == True:
+    #    plt.show()
+    # return plt.figure()
+
+
+
 
 
 def MultiStockPlot(StockNameList_, DaysBack_=50, ExportFig = True, ShowFig = True):
@@ -862,23 +1010,32 @@ def MultiStockPlot(StockNameList_, DaysBack_=50, ExportFig = True, ShowFig = Tru
     # return plt.figure()
 
 
-def MultiStockGrowthComparison(StockNameList_, DaysBack_=50, ExportFig=True, ShowFig=True):
+def MultiStockGrowthComparison(StockInstanceList_, DaysBack_=50, ExportFig=True, ShowFig=True, figsettings=None):
 
-    SList = [DeriveMetrics(StockName_=SName) for SName in StockNameList_]
+
+    SList = StockInstanceList_
 
     sDate = 0
     eDate = DaysBack_
-    fig = plt.figure(figsize=(8, 11))
-    ax1 = fig.add_subplot(111)
+    if figsettings == None:
+        fig = plt.figure(figsize=(8, 11))
+        ax1 = fig.add_subplot(111)
+    fig, ax1 = figsettings
+
+    import operator
+    StockDict = {}
+    for S in SList:
+        StockDict[S] = S.StockData['Close'][0] / S.StockData['Close'][DaysBack_ - 1]
+    Top8SList = sorted(StockDict.items(), key=operator.itemgetter(1))[-8:-1]
 
     # x0 = 5
     x = SList[0].StockData['Date'][0:DaysBack_]
-    for S in SList:
+    for S, lasty in Top8SList:
         y = S.StockData['Close'][0:DaysBack_] / S.StockData['Close'][DaysBack_-1]
         ax1.plot(x, y, 'o-', label=S.stockName)
         # ax1.set_xlim([-x0, x0])
         # ax1.set_ylim([-x0, x0])
-
+    StockNameList_ = [S.stockName for S, lasty in Top8SList]
     ax1.grid(b=True, which='both', color='0.65', linestyle ='-')
     ax1.set_title(
         '+'.join(StockNameList_) + ': ' + str(datetime.date.today()) + ': ' + str(
@@ -898,29 +1055,48 @@ def MultiStockGrowthComparison(StockNameList_, DaysBack_=50, ExportFig=True, Sho
        plt.show()
     return plt.figure()
 
-def MultiStockBollingerPhaseComparison(StockNameList_, DaysBack_=50, ExportFig=True, ShowFig=True):
+def MultiStockBollingerPhaseComparison(StockInstanceList_, DaysBack_=50, ExportFig=True, ShowFig=True, figsettings=None):
 
-    SList = [DeriveMetrics(StockName_=SName) for SName in StockNameList_]
-
+    SList = StockInstanceList_ #[DeriveMetrics(StockName_=SName) for SName in StockNameList_]
     sDate = 0
     eDate = DaysBack_
-    fig = plt.figure(figsize=(28, 11))
-    ax1 = fig.add_subplot(111)
+
+
+    if figsettings == None:
+        fig = plt.figure(figsize=(28, 11))
+        ax1 = fig.add_subplot(111)
+    fig, ax1 = figsettings
+
 
     # x0 = 5
-
     x = SList[0].StockData['DaysBack'][0:DaysBack_]
+    yaverage = np.zeros(x.shape)
     for S in SList:
         y = S.StockData['NormalizedBollinger'][0:DaysBack_]
+        y = np.nan_to_num(y)
+        yaverage = y + yaverage
+
         ax1.plot(x, y, 'o-', label=S.stockName)
         # ax1.set_xlim([-x0, x0])
         # ax1.set_ylim([-x0, x0])
+
+    yaverage = yaverage / len(SList)
+    ax1.plot(x, yaverage, 'r-', label='Average', linewidth=5)
+
+
+    # x = SList[0].StockData['DaysBack'][0:DaysBack_]
+    # for S in SList:
+    #     y = S.StockData['NormalizedBollinger'][0:DaysBack_]
+    #     ax1.plot(x, y, 'o-', label=S.stockName)
+    #     # ax1.set_xlim([-x0, x0])
+    #     # ax1.set_ylim([-x0, x0])
 
 
     ax1.plot(x, np.ones(x.shape), 'y-')
     ax1.plot(x, -np.ones(x.shape), 'r-')
 
 
+    StockNameList_ = [S.stockName for S in SList]
     ax1.grid(b=True, which='both', color='0.65', linestyle ='-')
     ax1.set_title(
         '+'.join(StockNameList_) + ': ' + str(datetime.date.today()) + ': ' + str(
@@ -934,7 +1110,7 @@ def MultiStockBollingerPhaseComparison(StockNameList_, DaysBack_=50, ExportFig=T
         filepath = '/Users/Tao/Google Drive/StockPlots/'
         filename = 'MultiStockBollingerComparison' + str(DaysBack_) + '_.png'
         #filename2 = StockName + str(DaysBack_) + '_.html'
-        plt.savefig(filepath + filename)
+        fig.savefig(filepath + filename)
         # mpld3.save_html(fig, filepath+filename2)
     if ShowFig == True:
        plt.show()
@@ -1023,6 +1199,7 @@ def MultiStockCorrelation(StockNameList_, nDays_=50, kShift=2, ExportFig=True, S
         # ax1.set_ylim([-x0, x0])
 
 
+
     ax1.plot(x, np.ones(x.shape), 'y-')
     ax1.plot(x, -np.ones(x.shape), 'r-')
 
@@ -1078,14 +1255,16 @@ if __name__=='__main__':
     #NewPlot(StockName_='COHR', DaysBack_=200)
     #MultiStockPlot(StockNameList_=['^IXIC', 'COHR', 'PYPL', 'NVDA', 'AMD', 'INTC', 'AMAT','ASML', 'KLAC', 'COHR', 'QCOM' , 'VIAV', 'IIVI'], DaysBack_=450, ExportFig=True, ShowFig=True)
     #MultiStockPlot(StockNameList_=['AMD', 'NVDA'], DaysBack_=200, ExportFig=True, ShowFig=True)
-    #list1 = ['^IXIC', 'COHR', 'PYPL', 'IPGP','NVDA', 'AMD', 'AMAT', 'KLAC', 'GOLD']
-    # list2 = ['^IXIC', 'COHR', 'PYPL', 'IPGP','NVDA', 'AMD', 'INTC', 'AMAT','ASML', 'KLAC', 'COHR', 'QCOM' , 'VIAV', 'IIVI']
-    # MultiStockGrowthComparison(StockNameList_=list1, DaysBack_=150, ExportFig=True, ShowFig=True)
-    #MultiStockBollingerPhaseComparison(StockNameList_=list1, DaysBack_=150, ExportFig=True, ShowFig=True)
+    #list1 = ['^IXIC', 'COHR', 'PYPL', 'IPGP','NVDA', 'AMD', 'AMAT', 'GOLD']
+    #list2 = ['^IXIC', 'COHR', 'PYPL', 'IPGP','NVDA', 'AMD', 'INTC', 'AMAT','ASML', 'KLAC', 'COHR', 'QCOM' , 'VIAV', 'IIVI']
+    #list3 = ['ASML', 'KLAC', 'COHR', 'QCOM' , 'VIAV', 'IIVI']
+
+    #MultiStockGrowthComparison(StockNameList_=list2, DaysBack_=5, ExportFig=True, ShowFig=True)
+    #MultiStockBollingerPhaseComparison(StockNameList_=list2, DaysBack_=450, ExportFig=True, ShowFig=True)
 
     #UsingStockStats(StockName_='COHR')
     #NewPlot(StockName_='COHR', DaysBack_=50, ExportFig=True, ShowFig=True)
     #df = twoStockCorrelation(StockNameList_=['GOLD', 'GOLD'], nDays=100, kShift=1)
     #newtest()
-    
+    #test()
     
