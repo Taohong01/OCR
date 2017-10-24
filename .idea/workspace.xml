@@ -2,9 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dba1428d-f6b8-4546-ba33-74ce74e7309e" name="Default" comment="">
+      <change type="DELETED" beforePath="$PROJECT_DIR$/AMD.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/GOLD.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/NDAQ.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/NVDA.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/SPY.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/VMW.csv" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/StockAnalysis.py" afterPath="$PROJECT_DIR$/StockAnalysis.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/StockRealTimeQuery.py" afterPath="$PROJECT_DIR$/StockRealTimeQuery.py" />
     </list>
     <ignored path="OCR.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -28,8 +33,8 @@
       <file leaf-file-name="StockAnalysis.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/StockAnalysis.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="509">
-              <caret line="73" column="12" selection-start-line="73" selection-start-column="12" selection-end-line="73" selection-end-column="12" />
+            <state relative-caret-position="236">
+              <caret line="499" column="27" selection-start-line="499" selection-start-column="27" selection-end-line="499" selection-end-column="27" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -52,7 +57,7 @@
       <file leaf-file-name="StockRealTimeQuery.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/StockRealTimeQuery.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="209">
+            <state relative-caret-position="152">
               <caret line="11" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
@@ -64,7 +69,7 @@
       <file leaf-file-name="InternetStockScraper.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/InternetStockScraper.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="269">
+            <state relative-caret-position="1102">
               <caret line="60" column="21" selection-start-line="60" selection-start-column="21" selection-end-line="60" selection-end-column="21" />
               <folding>
                 <element signature="e#598#627#0" expanded="true" />
@@ -117,16 +122,16 @@
         <option value="$PROJECT_DIR$/MinistExample.py" />
         <option value="$PROJECT_DIR$/ArbitraryProbabilityRandomSampleGenerationDemo.py" />
         <option value="$PROJECT_DIR$/ParticleFilterDemo.py" />
-        <option value="$PROJECT_DIR$/StockAnalysis.py" />
         <option value="$PROJECT_DIR$/StockRealTimeQuery.py" />
+        <option value="$PROJECT_DIR$/StockAnalysis.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="206" />
-    <option name="y" value="54" />
-    <option name="width" value="1336" />
-    <option name="height" value="725" />
+    <option name="x" value="66" />
+    <option name="y" value="38" />
+    <option name="width" value="1262" />
+    <option name="height" value="713" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -172,6 +177,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -192,8 +199,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -202,7 +207,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../Stock" />
     <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/word2vec.py" />
   </component>
-  <component name="RunManager" selected="Python.InternetStockScraper">
+  <component name="RunManager" selected="Python.StockAnalysis">
     <configuration default="false" name="StockAnalysis" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -431,9 +436,9 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.InternetStockScraper" />
-        <item index="1" class="java.lang.String" itemvalue="Python.InternetScraper" />
-        <item index="2" class="java.lang.String" itemvalue="Python.StockAnalysis" />
+        <item index="0" class="java.lang.String" itemvalue="Python.StockAnalysis" />
+        <item index="1" class="java.lang.String" itemvalue="Python.InternetStockScraper" />
+        <item index="2" class="java.lang.String" itemvalue="Python.InternetScraper" />
         <item index="3" class="java.lang.String" itemvalue="Python.StockRealTimeQuery" />
         <item index="4" class="java.lang.String" itemvalue="Python.ParticleFilterDemo" />
       </list>
@@ -456,26 +461,26 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="206" y="54" width="1336" height="725" extended-state="0" />
+    <frame x="66" y="38" width="1262" height="713" extended-state="1" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25171104" sideWeight="0.71004945" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26672038" sideWeight="0.68989545" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.51926297" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25171104" sideWeight="0.28995058" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26672038" sideWeight="0.31010452" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3327616" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -938,7 +943,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/InternetStockScraper.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="269">
+        <state relative-caret-position="1102">
           <caret line="60" column="21" selection-start-line="60" selection-start-column="21" selection-end-line="60" selection-end-column="21" />
           <folding>
             <element signature="e#598#627#0" expanded="true" />
@@ -948,7 +953,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/StockRealTimeQuery.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="209">
+        <state relative-caret-position="152">
           <caret line="11" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
@@ -958,8 +963,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/StockAnalysis.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="509">
-          <caret line="73" column="12" selection-start-line="73" selection-start-column="12" selection-end-line="73" selection-end-column="12" />
+        <state relative-caret-position="236">
+          <caret line="499" column="27" selection-start-line="499" selection-start-column="27" selection-end-line="499" selection-end-column="27" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>

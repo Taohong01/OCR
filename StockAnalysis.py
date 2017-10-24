@@ -13,6 +13,112 @@ from matplotlib.finance import candlestick_ohlc
 from pandas_datareader import data as pdr
 import fix_yahoo_finance as yf
 yf.pdr_override() # <== that's all it takes :-)
+import pandas as pd
+
+
+import sqlite3
+import pandas as pd
+
+class DataBase(object):
+    def __init__(self, StockList=['^IXIC', 'SPY'], DBName='StockPrice.db'):
+        StockList = ['^IXIC', 'NDAQ', 'SPY', 'JNPR', 'WMT', 'MAT', 'ZG', 'AMAT', 'EBAY', 'GOLD', 'VMW', 'NVDA', 'TSLA']
+        GenlStockList = ['NDAQ', 'SPY', 'GOLD']
+
+        SemiStockList = ['MU', 'NVDA', 'AMD', 'INTC', 'AMAT', 'ASML', 'KLAC', 'COHR', 'QCOM', 'VIAV', 'IIVI']
+        EcomStockList = ['BABA', 'AMZN', 'EBAY', 'PYPL']
+        CloudStockList = ['GOOG', 'GOOGL', 'VMW', 'JNPR', 'TWTR', 'MSFT', 'NOW', 'SPLK', 'SAP', 'PYPL', 'IBM', 'NOW',
+                          'BABA']
+        CarStockList = ['TSLA', 'F', 'GM', 'FCAU']
+        BioMedStockList = ['JNJ', 'ILMN', 'WBA']
+        LaserStockList = ['OCLR', 'IPGP', 'COHR']
+        AIStockList = []
+        NewStockList = ['CLDR', 'SNAP']
+
+        GoodStockList1 = ['NDAQ', 'SPY', 'GOLD', 'VMW', 'NVDA', 'AMD', 'COHR', 'NOW', 'PYPL', 'BABA']
+        GoodStockList2 = ['JNPR', 'ASML', 'LRCX', 'AMAT', 'TSLA', 'AAPL']
+        GoodStockList3 = ['^IXIC', 'FCAU']
+        GoodStockList4 = ['MU', 'IPGP']
+
+        FinanceStockList = ['BAC', 'GS']
+
+        AllStockList = GenlStockList + SemiStockList + StockList + GenlStockList + EcomStockList \
+                       + CloudStockList + CarStockList + BioMedStockList + \
+                       LaserStockList + SemiStockList
+
+        self.StockList = list(set(AllStockList))
+        self.DBName = DBName
+
+
+    def loadTableIntoSQLite3(self, df, TableName='trx', DataBaseName='test.db'):
+        """create a new table by loading from a dataframe"""
+        conn = sqlite3.connect(DataBaseName)
+        df.to_sql(TableName, conn, if_exists='fail', index=False)
+        conn.close()
+        print TableName + 'is loaded.'
+
+    def dropTableinSQLite3(self, TableName, DataBaseName='test.db'):
+        conn = sqlite3.connect(DataBaseName)
+        c = conn.cursor()
+        c.execute('drop table ' + TableName + ';')
+        conn.close()
+
+    def updateTableInSQLite3(self, df, TableName='trx', DataBaseName='test.db'):
+        """update an existing table by loading from a dataframe"""
+        conn = sqlite3.connect(DataBaseName)
+        c = conn.cursor()
+        KeyName = 'Date'
+        query = ' '.join(['select', KeyName, 'from', '\''+TableName+'\'', ';'])
+        print query
+        keys = [key[0] for key in set(c.execute(query))]
+        if bool(set(df[KeyName]).intersection(set(keys))):
+            print 'adding records'
+            df.to_sql(TableName, conn, if_exists='append', index=False)
+        else:
+            print 'found overlapping, new data is not loaded.'
+        conn.close()
+
+    def loadDataFromSQLite3(self, TableName='trx', DataBaseName='test.db'):
+        """load data from DataBase"""
+        conn = sqlite3.connect(DataBaseName)
+        c = conn.cursor()
+        query = ' '.join(['select * from ', '\''+TableName+'\'', ';'])
+        print query
+        df = pd.read_sql(query, conn, index_col='Date')
+        conn.close()
+        #print df
+        return df
+
+    def replaceTableInSQLite3(self, df, TableName='trx', DataBaseName='test.db'):
+        dropTableinSQLite3(TableName=TableName, DataBaseName=DataBaseName)
+        loadTableIntoSQLite3(df, TableName=TableName, DataBaseName=DataBaseName)
+
+
+    def DownloadStocks(self):
+        [year, month, day] = datetime.date.today().isoformat().split('-')
+        today = [str(int(month)), str(int(day)), year]
+        print today
+        for stockname in self.StockList:
+            print stockname
+            S = Stock(stockname=stockname, eDate=today, DataSource='Yahoo')
+            self.loadTableIntoSQLite3(S.StockData, TableName=stockname, DataBaseName=self.DBName)
+
+    def UpdateStocks(self):
+        [year, month, day] = datetime.date.today().isoformat().split('-')
+        today = [str(int(month)), str(int(day)), year]
+        print today
+        for stockname in self.StockList:
+            print stockname
+            S = Stock(stockname=stockname, sDate=today, eDate=today, DataSource='Yahoo')
+            print S.StockData
+            self.updateTableInSQLite3(S.StockData, TableName=stockname, DataBaseName=self.DBName)
+
+
+            # loadTableIntoSQLite3(df = df)
+    # dropTableinSQLite3(TableName=' trx', DataBaseName = 'test.db')
+    # updateTableInSQLite3(df.iloc[0:5])
+    # print loadDataFromSQLite3()
+
+
 
 class TimeConverter(object):
 
@@ -43,7 +149,7 @@ class Stock(object):
     #https://query1.finance.yahoo.com/v7/finance/download/CSV?period1=1502161290&period2=1504839690&interval=1d&events=history&crumb=6hysORdGG5z
     #https://query1.finance.yahoo.com/v7/finance/download/COHR?period1=1502161636&period2=1504840036&interval=1d&events=history&crumb=6hysORdGG5z
     #javascript:getQuotes(true);
-    def __init__(self, stockname = 'NVDA', sDate=['3', '12', '2000'], eDate=['8', '30', '2017']):
+    def __init__(self, stockname = 'NVDA', sDate=['3', '12', '2010'], eDate=['8', '30', '2017'], DataSource='Google'):
         self.YahooFinanceURL = 'http://real-chart.finance.yahoo.com/table.csv?s='
         self.YahooFinanceURLBase = 'https://query1.finance.yahoo.com/v7/finance/download/'
         self.stockName = stockname
@@ -51,9 +157,15 @@ class Stock(object):
         self.endDate = eDate
 
         #print "http://www.google.com/finance/historical?q=NASDAQ:ADBE&startdate=Mar+12%2C+2002&enddate=Aug+27%2C+2017&output=csv"
+        if DataSource == 'Google':
+            self.StockData = self.downloadHistoryCSVviaURLFromGoogle(self.composeGoogleFinanceQueryURL_Version2())
+        elif DataSource == 'Yahoo':
+            self.StockData = self.downloadHistoryCSVviaYahooFinancePackage()
+            self.StockData = self.StockData.convert_objects(convert_numeric=True)
+        elif DataSource == 'DataBase':
+            self.StockData = DataBase().loadDataFromSQLite3(TableName=stockname, DataBaseName='StockPrice.db')
 
-        self.StockData = self.downloadHistoryCSVviaURLFromGoogle(self.composeGoogleFinanceQueryURL_Version2())
-        if self.StockData is None:
+        elif StockData is None:
             while True:
                 try:
                     self.StockData = self.downloadHistoryCSVviaYahooFinancePackage()
@@ -467,6 +579,10 @@ class Stock(object):
 
         plt.show()
 
+
+
+
+
 def showStock2(StockName = 'SPY', DaysBack=20):
     stockname = StockName
     StockInterested = Stock(stockname=stockname)
@@ -575,6 +691,8 @@ def main():
     """showStock2()"""
     #showStock(StockName='SPY')
 
+    DataBase().UpdateStocks()
+
 
 
 
@@ -606,7 +724,7 @@ def main():
 
     AllStockList = list(set(AllStockList))
     print AllStockList
-    AllStockList= ['GOOG', 'GOOGL', 'TSLA', 'IIVI', 'AMAT', 'NVDA', 'WBA', 'COHR', 'GM', 'MSFT', 'IBM', 'SPY', 'GOLD', 'TWTR', 'SPLK', 'FCAU', 'AMD', '^IXIC', 'SAP', 'ASML', 'BABA', 'OCLR', 'INTC', 'F', 'PYPL', 'ZG', 'WMT', 'ILMN', 'QCOM', 'JNJ', 'AMZN', 'MAT', 'IPGP', 'EBAY', 'MU', 'VIAV', 'NDAQ', 'JNPR', 'VMW', 'NOW', 'KLAC']
+    AllStockList= ['GOOG', 'GOOGL', 'TSLA', 'IIVI', 'AMAT', 'NVDA', 'WBA', 'COHR', 'GM', 'MSFT', 'IBM', 'SPY', 'GOLD', 'TWTR', 'SPLK', 'FCAU', 'AMD', '^IXIC', 'ASML', 'BABA', 'OCLR', 'INTC', 'F', 'PYPL', 'ZG', 'WMT', 'ILMN', 'QCOM', 'JNJ', 'AMZN', 'MAT', 'IPGP', 'EBAY', 'MU', 'VIAV', 'NDAQ', 'JNPR', 'VMW', 'NOW', 'KLAC']
 
 
     MostStockList = ['AMZN', 'AMAT'] #['IPGP','NVDA','VMW', 'GOLD', 'COHR']
@@ -662,7 +780,8 @@ def DeriveMetrics(StockName_):
     StockName = StockName_
 
     stockname = StockName
-    S = Stock(stockname=stockname, eDate=today)
+    S = Stock(stockname=stockname, eDate=today, DataSource='DataBase')
+
     S.addDaysBack(name='DaysBack')
     S.addGainLossLabel()
     S.addRollingLstSq(name='k', days=5)
@@ -793,7 +912,7 @@ def NewPlot(Stock, DaysBack_=50, ExportFig = True, ShowFig = True, PrintFlag = T
     #plt.show()
     if PrintFlag == True:
         print S.StockData#['LstSqk_20days']
-    S.StockData.to_csv(S.stockName+'.csv')
+    #S.StockData.to_csv(S.stockName+'.csv')
     #print sum(S.StockData['NextDayGain|Loss%'][0:100] * S.StockData['StcOsc K%-D%'][0:100] > 0)
     #print sum(S.StockData['NextDayGain|Loss%'][0:100] * S.StockData['StcOsc K%-D%'][0:100] < 0)
 
@@ -1029,7 +1148,8 @@ def MultiStockGrowthComparison(StockInstanceList_, DaysBack_=50, ExportFig=True,
     Top8SList = sorted(StockDict.items(), key=operator.itemgetter(1))[-8:-1]
 
     # x0 = 5
-    x = SList[0].StockData['Date'][0:DaysBack_]
+    #x = SList[0].StockData.index[0:DaysBack_]
+    x = range(0, -DaysBack_, -1)
     for S, lasty in Top8SList:
         y = S.StockData['Close'][0:DaysBack_] / S.StockData['Close'][DaysBack_-1]
         ax1.plot(x, y, 'o-', label=S.stockName)
@@ -1225,6 +1345,7 @@ def MultiStockCorrelation(StockNameList_, nDays_=50, kShift=2, ExportFig=True, S
 
 
 
+
 if __name__=='__main__':
 
     # x = datetime.today()
@@ -1267,4 +1388,7 @@ if __name__=='__main__':
     #df = twoStockCorrelation(StockNameList_=['GOLD', 'GOLD'], nDays=100, kShift=1)
     #newtest()
     #test()
+    #DataBase().DownloadStocks()
+    #DataBase().UpdateStocks()
+
     
