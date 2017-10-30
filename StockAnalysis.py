@@ -19,6 +19,30 @@ import pandas as pd
 import sqlite3
 import pandas as pd
 
+class Option(object):
+    def __init__(self):
+        pass
+
+    def BlackScholes(self, S, t, K, r, s):
+        """
+        C = Call premium
+        S = Current stock price
+        t = Time until option execise
+        K = Option striking price
+        r = Risk-free interest rate
+        N = Cumulative standard normal distribution
+        e = Exponential term
+        s = St. Deviation
+        ln = NaturalLog
+        :return: CallPremium
+        """
+        from scipy.stats import norm
+        d1 = (np.log(S / K) + (r + s**2 / 2) * t) / (s * np.sqrt(t))
+        d2 = d1 - s * np.sqrt(t)
+        C = S * norm.cdf(d1) - norm.cdf(d2) * K * np.exp(- r * t)
+
+        return C
+
 class DataBase(object):
     def __init__(self, StockList=['^IXIC', 'SPY'], DBName='StockPrice.db'):
         StockList = ['^IXIC', 'NDAQ', 'SPY', 'JNPR', 'WMT', 'MAT', 'ZG', 'AMAT', 'EBAY', 'GOLD', 'VMW', 'NVDA', 'TSLA']
@@ -69,9 +93,14 @@ class DataBase(object):
         KeyName = 'Date'
         query = ' '.join(['select', KeyName, 'from', '\''+TableName+'\'', ';'])
         print query
+
         keys = [key[0] for key in set(c.execute(query))]
-        if bool(set(df[KeyName]).intersection(set(keys))):
+        # print set(keys)
+        # print set(df[KeyName].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:%S")))
+        print bool(set(df[KeyName].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:%S"))).intersection(set(keys)))
+        if not bool(set(df[KeyName].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:%S"))).intersection(set(keys))):
             print 'adding records'
+            #print df
             df.to_sql(TableName, conn, if_exists='append', index=False)
         else:
             print 'found overlapping, new data is not loaded.'
@@ -81,16 +110,17 @@ class DataBase(object):
         """load data from DataBase"""
         conn = sqlite3.connect(DataBaseName)
         c = conn.cursor()
-        query = ' '.join(['select * from ', '\''+TableName+'\'', ';'])
+        query = ' '.join(['select * from ', '\''+TableName+'\'', 'order by Date DESC;'])
         print query
         df = pd.read_sql(query, conn, index_col='Date')
+        #print df
         conn.close()
         #print df
         return df
 
     def replaceTableInSQLite3(self, df, TableName='trx', DataBaseName='test.db'):
-        dropTableinSQLite3(TableName=TableName, DataBaseName=DataBaseName)
-        loadTableIntoSQLite3(df, TableName=TableName, DataBaseName=DataBaseName)
+        #self.dropTableinSQLite3(TableName=TableName, DataBaseName=DataBaseName)
+        self.loadTableIntoSQLite3(df, TableName=TableName, DataBaseName=DataBaseName)
 
 
     def DownloadStocks(self):
@@ -108,8 +138,9 @@ class DataBase(object):
         print today
         for stockname in self.StockList:
             print stockname
+            print today
             S = Stock(stockname=stockname, sDate=today, eDate=today, DataSource='Yahoo')
-            print S.StockData
+            print '\nthis is today stock data:\n', S.StockData
             self.updateTableInSQLite3(S.StockData, TableName=stockname, DataBaseName=self.DBName)
 
 
@@ -737,6 +768,8 @@ def main():
     DaysBackList = [10, 20, 50, 200]
     for Stock in AllStockList: #GoodStockList1+GoodStockList2+GoodStockList3:
         S = DeriveMetrics(StockName_=Stock)
+        print S.StockData
+        DataBase().replaceTableInSQLite3(df=S.StockData, TableName='df_'+S.stockName, DataBaseName='StockPrice.db')
         for DaysBack in DaysBackList:
             print Stock +':' + str(DaysBack)
             #fig = showStock(StockName=Stock, DaysBack=DaysBack, ShowFig=False)
@@ -1385,7 +1418,7 @@ if __name__=='__main__':
 
     #UsingStockStats(StockName_='COHR')
     #NewPlot(StockName_='COHR', DaysBack_=50, ExportFig=True, ShowFig=True)
-    #df = twoStockCorrelation(StockNameList_=['GOLD', 'GOLD'], nDays=100, kShift=1)
+    #df = twoStockCorrelation(StockNameList_=['GOLD', 'GOLD'], nDays=5, kShift=1)
     #newtest()
     #test()
     #DataBase().DownloadStocks()
