@@ -219,9 +219,12 @@ class Stock(object):
         sD = [int(x) for x in self.startDate]
         eD = [int(x) for x in self.endDate]
         sDD = datetime.datetime(sD[2], sD[0], sD[1]).strftime('%Y-%m-%d')
-        eDD = datetime.datetime(eD[2], eD[0], eD[1]+1).strftime('%Y-%m-%d')
+        eDD = (datetime.datetime(sD[2], sD[0], sD[1])+datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+        # print 'edddd', eDD
+        # eDD = datetime.datetime(eD[2], eD[0], eD[1]+1).strftime('%Y-%m-%d')
+        # print 'edd', eDD
 
-        StockData = pdr.get_data_yahoo(name, start=sDD, end=eDD)
+        StockData = pdr.get_data_yahoo(nam                                                                                                                                                                                                                                                                                                                                                                                     e, start=sDD, end=eDD)
         #print self.StockData
         StockData['Date'] = StockData.index
         StockDataFrame = StockData.iloc[::-1]
@@ -768,8 +771,8 @@ def main():
     DaysBackList = [10, 20, 50, 200]
     for Stock in AllStockList: #GoodStockList1+GoodStockList2+GoodStockList3:
         S = DeriveMetrics(StockName_=Stock)
-        print S.StockData
-        DataBase().replaceTableInSQLite3(df=S.StockData, TableName='df_'+S.stockName, DataBaseName='StockPrice.db')
+        #print S.StockData
+        #DataBase().replaceTableInSQLite3(df=S.StockData, TableName='df_'+S.stockName, DataBaseName='StockPrice.db')
         for DaysBack in DaysBackList:
             print Stock +':' + str(DaysBack)
             #fig = showStock(StockName=Stock, DaysBack=DaysBack, ShowFig=False)
