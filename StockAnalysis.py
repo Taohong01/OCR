@@ -224,7 +224,7 @@ class Stock(object):
         # eDD = datetime.datetime(eD[2], eD[0], eD[1]+1).strftime('%Y-%m-%d')
         # print 'edd', eDD
 
-        StockData = pdr.get_data_yahoo(nam                                                                                                                                                                                                                                                                                                                                                                                     e, start=sDD, end=eDD)
+        StockData = pdr.get_data_yahoo(name, start=sDD, end=eDD)
         #print self.StockData
         StockData['Date'] = StockData.index
         StockDataFrame = StockData.iloc[::-1]

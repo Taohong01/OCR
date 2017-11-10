@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="dba1428d-f6b8-4546-ba33-74ce74e7309e" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/StockPrice.db" afterPath="$PROJECT_DIR$/StockPrice.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/StockAnalysis.py" afterPath="$PROJECT_DIR$/StockAnalysis.py" />
     </list>
     <ignored path="OCR.iws" />
@@ -28,8 +27,8 @@
       <file leaf-file-name="StockAnalysis.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/StockAnalysis.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="19">
-              <caret line="226" column="415" selection-start-line="226" selection-start-column="415" selection-end-line="226" selection-end-column="415" />
+            <state relative-caret-position="281">
+              <caret line="229" column="45" selection-start-line="229" selection-start-column="45" selection-end-line="229" selection-end-column="45" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -123,8 +122,8 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="78" />
-    <option name="y" value="40" />
+    <option name="x" value="46" />
+    <option name="y" value="43" />
     <option name="width" value="1294" />
     <option name="height" value="736" />
   </component>
@@ -456,7 +455,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="78" y="40" width="1294" height="736" extended-state="0" />
+    <frame x="46" y="43" width="1294" height="736" extended-state="1" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2600157" sideWeight="0.37096775" order="0" side_tool="false" content_ui="combo" />
@@ -958,8 +957,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/StockAnalysis.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="19">
-          <caret line="226" column="415" selection-start-line="226" selection-start-column="415" selection-end-line="226" selection-end-column="415" />
+        <state relative-caret-position="281">
+          <caret line="229" column="45" selection-start-line="229" selection-start-column="45" selection-end-line="229" selection-end-column="45" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
